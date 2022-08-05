@@ -34,6 +34,11 @@ async function run() {
 
         console.log("db connected")
         const htmlCollection = client.db('ucoders').collection('htmlLessons')
+        const cssCollection = client.db('ucoders').collection('cssLessons')
+        const javascriptCollection = client.db('ucoders').collection('javascriptLessons')
+        const reactCollection = client.db('ucoders').collection('reactLessons')
+        const nodeCollection = client.db('ucoders').collection('nodeLessons')
+        const domCollection = client.db('ucoders').collection('domLessons')
         const userCollection = client.db('ucoders').collection('users')
         const bookmarkCollection = client.db('ucoders').collection('lessons')
 
@@ -67,6 +72,14 @@ async function run() {
             res.send(users)
         })
 
+        app.delete('/user/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await userCollection.deleteOne(query)
+            res.send(result)
+
+        })
+
         app.put('/user/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
             const email = req.params.email
             const filter = { email: email }
@@ -76,8 +89,17 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc);
             res.send(result)
         })
+        app.put('/user/admins/:email', verifyJWT, verifyAdmin, async (req, res) => {
+            const email = req.params.email
+            const filter = { email: email }
+            const updateDoc = {
+                $set: { role: '' }
+            }
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result)
+        })
 
-        app.get('/admin/:email', async (req, res) => {
+        app.get('/admin/:email', verifyJWT, async (req, res) => {
             const email = req.params.email
             const user = await userCollection.findOne({ email: email })
             const isAdmin = user.role === 'admin'
@@ -85,7 +107,7 @@ async function run() {
             res.send({ admin: isAdmin })
         })
 
-        app.put('/user/update/:email', async (req, res) => {
+        app.put('/user/update/:email', verifyJWT, async (req, res) => {
             const email = req.params.email
             const user = req.body
             const filter = { email: email }
@@ -105,47 +127,7 @@ async function run() {
             res.send(user)
         })
 
-
-        app.get('/htmlLessons', async (req, res) => {
-            const result = await htmlCollection.find().toArray()
-            res.send(result)
-        })
-
-        app.get('/htmlLessons/:id', async (req, res) => {
-            const id = req.params.id
-            const query = { _id: ObjectId(id) }
-            const result = await htmlCollection.findOne(query)
-            res.send(result)
-        })
-
-        app.delete('/htmlLessons/:id', verifyJWT, async (req, res) => {
-            const id = req.params.id
-            const query = { _id: ObjectId(id) }
-            const result = await htmlCollection.deleteOne(query)
-            res.send(result)
-
-        })
-
-        app.put('/htmlLessons/:id', async (req, res) => {
-            const id = req.params.id
-            const filter = { _id: ObjectId(id) }
-            const lesson = req.body
-            const options = { upsert: true };
-            const updateDoc = {
-                $set: lesson
-            }
-            const result = await htmlCollection.updateOne(filter, updateDoc, options);
-            res.send(result)
-
-        })
-
-        app.post('/htmlLessons', async (req, res) => {
-            const htmlLessons = req.body
-            const result = await htmlCollection.insertOne(htmlLessons)
-            res.send(result)
-        })
-
-        app.post('/bookmark', async (req, res) => {
+        app.post('/bookmark', verifyJWT, async (req, res) => {
             const bookmark = req.body
             const query = { email: bookmark.email, lesson: bookmark.lesson }
             const exists = await bookmarkCollection.findOne(query)
@@ -170,6 +152,247 @@ async function run() {
             res.send(result)
 
         })
+
+        app.get('/htmlLessons', async (req, res) => {
+            const result = await htmlCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/htmlLessons/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await htmlCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.delete('/htmlLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await htmlCollection.deleteOne(query)
+            res.send(result)
+
+        })
+
+        app.put('/htmlLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const lesson = req.body
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: lesson
+            }
+            const result = await htmlCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+
+        })
+
+        app.post('/htmlLessons', verifyJWT, verifyAdmin, async (req, res) => {
+            const lesson = req.body
+            const result = await htmlCollection.insertOne(lesson)
+            res.send(result)
+        })
+
+
+        app.get('/cssLessons', async (req, res) => {
+            const result = await cssCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/cssLessons/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await cssCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.delete('/cssLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await cssCollection.deleteOne(query)
+            res.send(result)
+
+        })
+
+        app.put('/cssLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const lesson = req.body
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: lesson
+            }
+            const result = await cssCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+
+        })
+
+        app.post('/cssLessons', verifyJWT, verifyAdmin, async (req, res) => {
+            const lesson = req.body
+            const result = await cssCollection.insertOne(lesson)
+            res.send(result)
+        })
+
+
+        app.get('/javascriptLessons', async (req, res) => {
+            const result = await javascriptCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/javascriptLessons/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await javascriptCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.delete('/javascriptLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await javascriptCollection.deleteOne(query)
+            res.send(result)
+
+        })
+
+        app.put('/javascriptLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const lesson = req.body
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: lesson
+            }
+            const result = await javascriptCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+
+        })
+
+        app.post('/javascriptLessons', verifyJWT, verifyAdmin, async (req, res) => {
+            const lesson = req.body
+            const result = await javascriptCollection.insertOne(lesson)
+            res.send(result)
+        })
+
+
+        app.get('/reactLessons', async (req, res) => {
+            const result = await reactCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/reactLessons/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await reactCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.delete('/reactLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await reactCollection.deleteOne(query)
+            res.send(result)
+
+        })
+
+        app.put('/reactLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const lesson = req.body
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: lesson
+            }
+            const result = await reactCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+
+        })
+
+        app.post('/reactLessons', verifyJWT, verifyAdmin, async (req, res) => {
+            const lesson = req.body
+            const result = await reactCollection.insertOne(lesson)
+            res.send(result)
+        })
+
+
+        app.get('/nodeLessons', async (req, res) => {
+            const result = await nodeCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/nodeLessons/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await nodeCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.delete('/nodeLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await nodeCollection.deleteOne(query)
+            res.send(result)
+
+        })
+
+        app.put('/nodeLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const lesson = req.body
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: lesson
+            }
+            const result = await nodeCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+
+        })
+
+        app.post('/nodeLessons', verifyJWT, verifyAdmin, async (req, res) => {
+            const lesson = req.body
+            const result = await nodeCollection.insertOne(lesson)
+            res.send(result)
+        })
+
+
+        app.get('/domLessons', async (req, res) => {
+            const result = await domCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/domLessons/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await domCollection.findOne(query)
+            res.send(result)
+        })
+
+        app.delete('/domLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await domCollection.deleteOne(query)
+            res.send(result)
+
+        })
+
+        app.put('/domLessons/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id
+            const filter = { _id: ObjectId(id) }
+            const lesson = req.body
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: lesson
+            }
+            const result = await domCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+
+        })
+
+        app.post('/domLessons', verifyJWT, verifyAdmin, async (req, res) => {
+            const lesson = req.body
+            const result = await domCollection.insertOne(lesson)
+            res.send(result)
+        })
+
+
     }
 
     finally {
